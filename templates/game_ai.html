@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}Play vs Computer{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-start mb-3">
+    <a href="{{ url_for('mode_selection') }}" class="btn btn-secondary btn-sm">← Back to Mode Selection</a>
+</div>
+
+<h1>Play vs Computer</h1>
+<p class="subtitle">Challenge the computer in Rock-Paper-Scissors!</p>
+
+<div class="score-board">
+    <div class="score">
+        <h3>Your Score</h3>
+        <div id="player-score" class="score-value">0</div>
+    </div>
+    <div class="score">
+        <h3>Computer Score</h3>
+        <div id="computer-score" class="score-value">0</div>
+    </div>
+    <div class="score">
+        <h3>Round</h3>
+        <div id="round" class="score-value">0</div>
+    </div>
+</div>
+
+<div class="game-area">
+    <section class="player-section">
+        <h2 class="section-title">Your Choice</h2>
+        <div class="choices">
+            <button class="choice-btn" data-choice="rock" title="Rock">🪨</button>
+            <button class="choice-btn" data-choice="paper" title="Paper">📃</button>
+            <button class="choice-btn" data-choice="scissors" title="Scissors">✂️</button>
+        </div>
+        <p><strong>Selected:</strong> <span id="player-choice-text">-</span></p>
+        <p class="result-icons">
+            <span id="player-result-icon"></span>
+        </p>
+    </section>
+
+    <section class="computer-section">
+        <h2 class="section-title">Computer's Choice</h2>
+        <p><strong>Selected:</strong> <span id="computer-choice-text">-</span></p>
+        <p class="result-icons">
+            <span id="computer-result-icon"></span>
+        </p>
+    </section>
+</div>
+
+<div id="result-display" class="result-display">
+    <p id="result-text" class="result-text">Make your move!</p>
+</div>
+
+<div class="controls">
+    <button id="play-btn" class="btn btn-primary">Play</button>
+    <button id="reset-btn" class="btn btn-secondary">Reset</button>
+</div>
+
+<div class="history">
+    <h3 class="history-title">Game History</h3>
+    <div id="history-list" class="history-list">
+        <!-- History items will be appended here -->
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Choose Game Mode{% endblock %}
+{% block content %}
+<h2>Choose Game Mode</h2>
+<div class="d-flex justify-content-center gap-4 mt-4">
+    <a href="{{ url_for('game_ai') }}" class="btn btn-primary btn-lg px-5 py-3" role="button">Play vs Computer</a>
+    <a href="{{ url_for('lobby') }}" class="btn btn-success btn-lg px-5 py-3" role="button">Play vs Online Player</a>
+</div>
+{% endblock %}

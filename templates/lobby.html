@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Lobby{% endblock %}
+{% block content %}
+<h2>Online Players</h2>
+{% if online_users %}
+    <ul class="list-group">
+        {% for user in online_users %}
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ user.username }}
+                <button class="btn btn-sm btn-primary" onclick="sendGameRequest('{{ user.username }}')">Challenge</button>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No other players online right now.</p>
+{% endif %}
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io();
+
+    function sendGameRequest(toUsername) {
+        socket.emit('send_game_request', { to_username: toUsername });
+        alert('Game request sent to ' + toUsername);
+    }
+
+    socket.on('game_request', data => {
+        if (confirm(`Game request from ${data.from}. Accept?`)) {
+            socket.emit('accept_game_request', { from_username: data.from });
+            window.location.href = `/game?room=game_${[data.from, "{{ current_user.username }}"].sort().join('_')}`;
+        } else {
+            socket.emit('reject_game_request', { from_username: data.from });
+        }
+    });
+
+    socket.on('game_request_rejected', data => {
+        alert(`Your game request was rejected by ${data.by}.`);
+    });
+</script>
+{% endblock %}

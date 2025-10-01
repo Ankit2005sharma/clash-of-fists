@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Game{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-start mb-3">
+    <a href="{{ url_for('mode_selection') }}" class="btn btn-secondary btn-sm">← Back to Mode Selection</a>
+</div>
+
+<h2>Clash of Fists - Multiplayer Game</h2>
+<p id="status" class="mb-3">Waiting for opponent...</p>
+
+<div id="game-area" style="display:none;">
+    <p>Choose your move:</p>
+    <div class="choices mb-3">
+        <button class="btn btn-outline-light btn-lg me-2" onclick="makeMove('rock')">🪨 Rock</button>
+        <button class="btn btn-outline-light btn-lg me-2" onclick="makeMove('paper')">📃 Paper</button>
+        <button class="btn btn-outline-light btn-lg" onclick="makeMove('scissors')">✂️ Scissors</button>
+    </div>
+    <p id="round-result" class="fs-4"></p>
+</div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script>
+    const socket = io();
+    const urlParams = new URLSearchParams(window.location.search);
+    const room = urlParams.get('room');
+    const statusEl = document.getElementById('status');
+    const gameArea = document.getElementById('game-area');
+    const roundResult = document.getElementById('round-result');
+    let hasMoved = false;
+
+    socket.on('connect', () => {
+        if (room) {
+            socket.emit('join_room', { room: room });
+            statusEl.textContent = 'Connected to game room. Waiting for moves...';
+            gameArea.style.display = 'block';
+        } else {
+            statusEl.textContent = 'No game room specified.';
+        }
+    });
+
+    socket.on('start_game', data => {
+        statusEl.textContent = 'Game started! Make your move.';
+        gameArea.style.display = 'block';
+    });
+
+    socket.on('round_result', data => {
+        let you = "{{ current_user.username }}";
+        let opponent = data.player1 === you ? data.player2 : data.player1;
+        let yourChoice = data.player1 === you ? data.choice1 : data.choice2;
+        let opponentChoice = data.player1 === you ? data.choice2 : data.choice1;
+        let winner = data.result;
+
+        let message = `You chose ${yourChoice}. Opponent chose ${opponentChoice}. `;
+
+        if (winner === 'tie') {
+            message += "It's a tie!";
+        } else if ((winner === 'player1' && data.player1 === you) || (winner === 'player2' && data.player2 === you)) {
+            message += "You win this round!";
+        } else {
+            message += "You lose this round.";
+        }
+        roundResult.textContent = message;
+        hasMoved = false;
+    });
+
+    socket.on('error', data => {
+        alert(data.message);
+    });
+
+    function makeMove(choice) {
+        if (hasMoved) {
+            alert('You already made your move this round.');
+            return;
+        }
+        socket.emit('make_move', { room: room, choice: choice });
+        statusEl.textContent = `You chose ${choice}. Waiting for opponent...`;
+        hasMoved = true;
+    }
+</script>
+{% endblock %}
